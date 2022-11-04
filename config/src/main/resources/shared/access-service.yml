@@ -1,0 +1,46 @@
+security:
+  oauth2:
+    client:
+      clientId: access-service
+      clientSecret: ${ACCESS_SERVICE_PASSWORD}
+      accessTokenUri: http://auth-service:5000/uaa/oauth/token
+      grant-type: client_credentials
+      scope: server
+
+spring:
+  data:
+    mongodb:
+      host: access-mongodb
+      username: user
+      password: ${MONGODB_PASSWORD}
+      database: piggymetrics
+      port: 27017
+    redis:
+      host: redis
+      port: 6379
+      ttl: 3600
+    elasticsearch:
+      repositories:
+        enabled: true
+      cluster-nodes: elasticsearch:9300
+      cluster-name: docker-cluster
+
+server:
+  servlet:
+    context-path: /access
+  port: 9000
+
+feign:
+  httpclient:
+    disableSslValidation: true
+    httpclient.enabled: false
+    okhttp.enabled: true
+
+metasploit:
+  url: https://118.69.18.211:55553
+  host: 118.69.18.211
+  port: 55553
+  user: admin
+  pass: admin@123
+  uri: /api/
+  ssl: false

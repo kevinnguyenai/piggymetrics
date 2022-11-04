@@ -1,0 +1,12 @@
+spring:
+  application:
+    name: zipkin
+  cloud:
+    config:
+      uri: http://config:8888
+      password: ${CONFIG_SERVICE_PASSWORD}
+      username: user
+
+server:
+  compression:
+    enabled: false

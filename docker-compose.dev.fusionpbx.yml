@@ -1,0 +1,48 @@
+version: '3'
+
+services:
+  fusionpbx:
+    image: crazyquark/fusionpbx
+    ports:
+      - "5060:5060/tcp"
+      - "5060:5060/udp"
+      - "5061:5061/tcp"
+      - "5080:5080/tcp"
+      - "5081:5081/tcp"  
+      - "5080:5080/udp"
+      - "8880:80"
+      - "7443:7443"
+      - "8443:443"
+      - "8021:8021/tcp"
+      - "16384-16390:16384-16390/udp"
+    networks:
+      default:
+        aliases: 
+          - fusionbpx
+    volumes:
+      - fusionpbx_config:/etc/fusionpbx
+      - freswitch_config:/etc/freeswitch
+    depends_on:
+      - db
+    group_add:
+      - 20 # dialout
+
+  db:
+      image: postgres:alpine
+      environment:
+        POSTGRES_USER: 'fusionpbx'
+        POSTGRES_DB: 'fusionpbx'
+        POSTGRES_PASSWORD: 'doAvJVVEqkZTXdHYJ7wpCPNLqS7Db7RR'
+      volumes:
+        - fusionpbx_db:/var/lib/postgresql/data
+        - ./postgres:/docker-entrypoint-initdb.d
+      networks:
+        default:
+          aliases:
+            - db
+networks: {default:{}}
+
+volumes: 
+  fusionpbx_db:
+  fusionpbx_config:
+  freswitch_config:

@@ -1,0 +1,31 @@
+version: '2.1'
+
+services:
+  # we will use redis as one of our application scheduler and catching
+  # This configuration allow you to start mariadb
+  mariadb:
+    image: mariadb:10.5
+    command: --transaction-isolation=READ-COMMITTED --binlog-format=ROW
+    restart: always
+    volumes:
+      - db_mysql_data:/var/lib/mysql
+    environment:
+      - MYSQL_DATABASE=nextcloud
+      - MYSQL_USER=nextcloud
+      - MYSQL_ROOT_PASSWORD=nextcloud
+      - MYSQL_PASSWORD=nextcloud
+    ports:
+     - "3306:3306"
+    #scale: 1
+    logging:
+      options:
+        max-size: "10m"
+        max-file: "10"
+    networks: ["default"]
+
+###############################################################
+# Network settings
+###############################################################
+networks: {default: {}}
+volumes:
+  db_mysql_data:

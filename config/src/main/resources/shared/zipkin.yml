@@ -1,0 +1,33 @@
+server:
+  port: 9411
+
+spring:
+  sleuth:
+    enabled: true
+  zipkin:
+    storage:
+      type: elasticsearch
+      StorageComponent: elasticsearch
+      elasticsearch:
+        cluster: docker-cluster
+        max-requests: 30
+        index: zipkin
+        index-shards: 3
+        index-replicas: 1
+        hosts: elasticsearch:9200
+
+
+
+management:
+  security:
+    enabled: false
+  metrics:
+    web:
+      server:
+        auto-time-requests: false
+
+logging:
+  level:
+    zipkin: DEBUG
+    zipkin2: DEBUG
+    

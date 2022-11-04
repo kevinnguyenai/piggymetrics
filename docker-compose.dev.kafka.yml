@@ -1,0 +1,93 @@
+version: '2.1'
+
+services:
+  # this is our kafka fast-data-dev hackathon environment
+  kafka-cluster:
+    image: lensesio/fast-data-dev:2.3.0
+    environment:
+      ADV_HOST: 172.18.0.19              # Change to 192.168.99.100 if using Docker Toolbox 
+      RUNTESTS: 1                  # Disable Running tests so the cluster starts faster
+      SAMPLEDATA: 1                # Run sample data flow 
+      RUNNING_SAMPLEDATA: 1        # Run sample data lowly to topics
+      ENABLE_SSL: 0                # Disable SSL mode
+      CONNECTORS: mongodb, elastic, elastic5, redis, elasticsearch, influxdb
+      FORWARDLOGS: 0
+      
+    ports:
+      - 2181:2181                 # Zookeeper
+      - 3030:3030                 # Landoop UI
+      - 8081-8083:8081-8083       # REST Proxy, Schema Registry, Kafka Connect ports
+      - 9581-9585:9581-9585       # JMX Ports
+      - 9092:9092                 # Kafka Broker
+    #scale: 1
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+    networks: ["default"]
+
+  # we will use elasticsearch as one of our sinks.
+  # This configuration allows you to start elasticsearch
+  elasticsearch:
+    image: itzg/elasticsearch:5.5
+    mem_limit: 2147483648
+    environment:
+      PLUGINS: appbaseio/dejavu
+      ES_JAVA_OPTS: "-Xms1g -Xmx1g"
+      MAX_OPEN_FILES: 65536
+    ulimits:
+      nofile:
+          soft: 65536
+          hard: 65536
+    ports:
+      - "9200:9200"
+      - "9300:9300"
+    #scale: 1
+    logging:
+      options:
+        max-size: "10m"
+        max-file: "10"
+    networks: ["default"]
+
+  kibana:
+    image: kibana:5.5.2
+    environment:
+      - ELASTICSEARCH_URL=http://elasticsearch:9200
+    ports:
+      - "5601:5601"
+    links:
+      - elasticsearch
+    logging:
+      options:
+        max-size: "10m"
+        max-file: "10"
+    networks: ["default"]
+
+  # we will use postgres as one of our sinks.
+  # This configuration allows you to start postgres
+  postgres:
+    image: postgres:9.5-alpine
+    environment:
+      POSTGRES_USER: postgres     # define credentials
+      POSTGRES_PASSWORD: postgres # define credentials
+      POSTGRES_DB: postgres       # define database
+    ports:
+      - "5432:5432"                 # Postgres port
+    #scale: 1
+    networks: ["default"]
+
+  # we will use redis as one of our application scheduler and catching
+  # This configuration allow you to start redis
+  redis:
+    image: "redis"
+    ports:
+     - "6379:6379"
+    #scale: 1
+    logging:
+      options:
+        max-size: "10m"
+        max-file: "10"
+    networks: ["default"]
+
+###############################################################
+# Network settings
+###############################################################
+networks: {default: {}}
